@@ -22,23 +22,22 @@ getloadavg()
 	PROTOTYPE:
 	PREINIT:
 		double loadavg[2];
-		int retval;
-		int i;
+		int retval, i;
 	PPCODE:
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__linux__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
         retval = getloadavg(loadavg, 3);
 #else
         retval = -1;
 #endif
         EXTEND(SP, 3);
         if (retval == -1) {
-            //XSRETURN_EMPTY;
+            XSRETURN_EMPTY;
         } else {
             for (i=0; i<3; i++) {
                 if (i < retval) {
-                    PUSHs(sv_2mortal(newSVnv(loadavg[i])));
+                    XPUSHs(sv_2mortal(newSVnv(loadavg[i])));
                 } else {
-                    PUSHs(sv_2mortal(newSV(0)));
+                    XPUSHs(sv_2mortal(newSV(0)));
                 }
             }
         }
