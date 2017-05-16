@@ -2,6 +2,8 @@
 extern "C" {
 #endif
 
+#define _BSD_SOURCE
+#define _DEFAULT_SOURCE
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -24,7 +26,7 @@ getloadavg()
 		double loadavg[2];
 		int retval, i;
 	PPCODE:
-#if defined(__FreeBSD__) || defined(__OpenBSD__)
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__)
         retval = getloadavg(loadavg, 3);
 #else
         retval = -1;
