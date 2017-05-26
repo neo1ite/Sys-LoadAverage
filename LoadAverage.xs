@@ -2,8 +2,6 @@
 extern "C" {
 #endif
 
-#define _BSD_SOURCE
-#define _DEFAULT_SOURCE
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -13,6 +11,12 @@ extern "C" {
 #include <stdlib.h>
 #endif
 
+#ifdef _BSD_SOURCE
+#ifndef __UCLIBC__
+#define HAVE_GETLOADAVG
+#endif /* __UCLIBC__ */
+#endif
+
 #ifdef __cplusplus
 }
 #endif
@@ -20,16 +24,23 @@ extern "C" {
 MODULE = Sys::LoadAverage		PACKAGE = Sys::LoadAverage
 
 void
-getloadavg()
+loadavg()
 	PROTOTYPE:
 	PREINIT:
-		double loadavg[2];
+		double loadavg[3];
 		int retval, i;
 	PPCODE:
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#if defined(HAVE_GETLOADAVG)
         retval = getloadavg(loadavg, 3);
 #else
+        FILE *LOADAVG;
         retval = -1;
+
+        if ((LOADAVG = fopen("/proc/loadavg", "r"))) {
+            fscanf(LOADAVG, "%lf %lf %lf", &loadavg[0], &loadavg[1], &loadavg[2]);
+            retval = 0;
+            fclose(LOADAVG);
+        }
 #endif
         EXTEND(SP, 3);
         if (retval == -1) {

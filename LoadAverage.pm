@@ -25,7 +25,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
-	
+
 );
 
 our $VERSION = '0.01';
@@ -48,24 +48,24 @@ sub getload {
   # handle bsd getloadavg().  Read the README about why it is freebsd/openbsd.
   if ($cache eq 'getloadavg()' || lc($^O) eq 'freebsd' || lc($^O) eq 'openbsd' || lc($^O) eq 'linux') {
     $cache = 'getloadavg()';
-    return getloadavg()
+    return loadavg()
   }
 
   # handle unknown (linux) proc filesystem
   if ($cache eq 'unknown' or $cache eq 'linux') {
     my $fh = IO::File->new('/proc/loadavg', 'r');
-    
+
     if (defined $fh) {
       my $line = <$fh>;
       $fh->close();
-      
+
       if ($line =~ /^(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)/) {
         #$cache = 'linux';
         return ($1, $2, $3);
       }              # if we can parse /proc/loadavg contents
-    }                # if we could load /proc/loadavg 
+    }                # if we could load /proc/loadavg
   }                  # if linux or not cached
-   
+
   # last resort...
 
   $cache = 'uptimepipe';
@@ -73,16 +73,16 @@ sub getload {
   $ENV{'LC_NUMERIC'}='POSIX';    # ensure that decimal separator is a dot
 
   my $fh = IO::File->new('/usr/bin/uptime|');
-  
+
   if (defined $fh) {
     my $line = <$fh>;
     $fh->close();
-    
+
     if ($line =~ /(\d+\.\d+)\s*,\s+(\d+\.\d+)\s*,\s+(\d+\.\d+)\s*$/) {
       return ($1, $2, $3);
     }                # if we can parse the output of /usr/bin/uptime
   }                  # if we could run /usr/bin/uptime
-    
+
   return (undef, undef, undef);
 }
 
