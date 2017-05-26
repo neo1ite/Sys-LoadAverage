@@ -48,7 +48,7 @@ sub getload {
   # handle bsd getloadavg().  Read the README about why it is freebsd/openbsd.
   if ($cache eq 'getloadavg()' || lc($^O) eq 'freebsd' || lc($^O) eq 'openbsd' || lc($^O) eq 'linux') {
     $cache = 'getloadavg()';
-    return loadavg()
+    return loadavg();
   }
 
   # handle unknown (linux) proc filesystem
